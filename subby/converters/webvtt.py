@@ -24,7 +24,7 @@ RUBY_PARENTHESIS_TAG = re.compile(r'<rp>([^<]+)<\/rp>')
 class WebVTTConverter(BaseConverter):
     """WebVTT subtitle converter"""
 
-    def parse(self, stream):
+    def parse(self, stream, errors: str = 'strict'):
         srt = SubRipFile()
         looking_for_text = False
         looking_for_style = False
@@ -38,7 +38,7 @@ class WebVTTConverter(BaseConverter):
 
         for line in stream:
             # As our stream is bytes we have to deal with line breaks here
-            line = line.decode('utf-8').replace('\r\n', '\n').replace('\r', '\n').strip()
+            line = line.decode('utf-8', errors=errors).replace('\r\n', '\n').replace('\r', '\n').strip()
 
             # Skip processing any unnecessary lines
             if any(line.startswith(word) for word in SKIP_WORDS):
