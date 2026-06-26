@@ -15,7 +15,7 @@ from abc import ABC, abstractmethod
 class BaseSegmentedConverter(BaseConverter, ABC):
     """Segmented stream base converter"""
 
-    def parse(self, stream):
+    def parse(self, stream, errors: str = 'strict'):
         ftyp_box_header = b"\x00\x00\x00\x1cftyp"
         styp_box_header = b"\x00\x00\x00\x18styp"
 
@@ -40,23 +40,23 @@ class BaseSegmentedConverter(BaseConverter, ABC):
         else:
             segments.append(data)
 
-        return self._parse(segments)
+        return self._parse(segments, errors=errors)
 
     @abstractmethod
-    def _parse(self, segments) -> SubRipFile:
+    def _parse(self, segments, errors: str = 'strict') -> SubRipFile:
         ...
 
 
 class ISMTConverter(BaseSegmentedConverter):
     """ISMT (DFXP in MP4) subtitle converter"""
 
-    def _parse(self, segments):
+    def _parse(self, segments, errors: str = 'strict'):
         srt = SubRipFile([])
 
         for segment in segments:
             for box in MP4.parse(segment):
                 if box.type == b'mdat':
-                    new = SMPTEConverter().from_bytes(box.data)
+                    new = SMPTEConverter().from_bytes(box.data, errors=errors)
 
                     # Offset timecodes if necessary
                     # https://github.com/SubtitleEdit/subtitleedit/blob/abd36e5/src/libse/SubtitleFormats/IsmtDfxp.cs#L85-L90
@@ -70,7 +70,7 @@ class ISMTConverter(BaseSegmentedConverter):
 
 class WVTTConverter(BaseSegmentedConverter):
     """WVTT (WebVTT in MP4) subtitle converter"""
-    def _parse(self, segments):
+    def _parse(self, segments, errors: str = 'strict'):
         sample_durations = deque()
         vtt_lines = []
         timescale = 0
