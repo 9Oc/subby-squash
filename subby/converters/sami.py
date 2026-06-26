@@ -10,8 +10,8 @@ from subby.utils.time import timedelta_from_ms
 class SAMIConverter(BaseConverter):
     """SAMI subtitle converter"""
 
-    def parse(self, stream):
-        return _SAMIConverter(stream.read().decode('utf-8-sig')).srt
+    def parse(self, stream, errors: str = 'strict'):
+        return _SAMIConverter(stream.read().decode('utf-8-sig', errors=errors)).srt
 
 
 # Internal converter class as we inherit from HTMLParser
