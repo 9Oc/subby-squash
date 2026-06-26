@@ -13,8 +13,8 @@ from subby.utils.time import timedelta_from_timestamp, timestamp_from_ms
 class SMPTEConverter(BaseConverter):
     """DFXP/TTML/TTML2 subtitle converter"""
 
-    def parse(self, stream):
-        data = stream.read().decode('utf-8-sig')
+    def parse(self, stream, errors: str = 'strict'):
+        data = stream.read().decode('utf-8-sig', errors=errors)
 
         if data.count('</tt>') == 1:
             return _SMPTEConverter(data).srt
